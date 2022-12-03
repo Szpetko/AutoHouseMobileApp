@@ -10,34 +10,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import pl.autohouse.autohousemobileapp.navigation.graphs.RootNavGraph
 import pl.autohouse.autohousemobileapp.ui.theme.AutoHouseMobileAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        lateinit var navController: NavHostController
+
         super.onCreate(savedInstanceState)
         setContent {
             AutoHouseMobileAppTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+                navController = rememberNavController()
+                RootNavGraph(navController = navController)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AutoHouseMobileAppTheme {
-        Greeting("Android")
     }
 }
