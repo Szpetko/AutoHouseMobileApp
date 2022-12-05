@@ -1,6 +1,7 @@
 package pl.autohouse.autohousemobileapp.screens.home
 
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,7 +14,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -24,17 +27,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import pl.autohouse.autohousemobileapp.R
-import pl.autohouse.autohousemobileapp.classes.Device
-import pl.autohouse.autohousemobileapp.classes.Room
-import pl.autohouse.autohousemobileapp.classes.SceneItem
+import pl.autohouse.autohousemobileapp.model.Device
+import pl.autohouse.autohousemobileapp.model.Room
+import pl.autohouse.autohousemobileapp.model.SceneItem
+import retrofit2.Response
 
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
+    devices: List<Device>?,
+    rooms: List<Room>?,
+    onDeviceClick: (deviceId: Long) -> Unit
 ) {
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -55,19 +65,30 @@ fun HomeScreen(
             ScenesSection(sceneItems = sceneList)
 
 
-            //DeviceItem(device = Device(1,"Lampki", 1,false,14,1))
-
-            val rooms = listOf(
-                Room(1, "Living Room"),
-                Room(2, "Kitchen"),
-                Room(3, "Some Room"),
-                Room(4, "Bed Room")
-            )
-
-            RoomsSection(rooms = rooms)
+//            val rooms = listOf(
+//                Room("room", 1, "Living Room", 1),
+//                Room("room", 2, "Kitchen", 1),
+//                Room("room", 3, "Some Room", 1),
+//                Room("room", 4, "Bed Room", 1)
+//            )
 
 
+            
+            if (rooms != null && devices != null) {
 
+
+                if (rooms.isNotEmpty()) {
+                    //Text(text = devices.get(0).status.toString())
+                    RoomsSection(rooms = rooms, devices = devices, onDeviceClick)
+                }
+            } else {
+                Text(
+                    text = "Failed to load data from the server",
+                    modifier = Modifier
+                        .padding(40.dp)
+                        .align(CenterHorizontally)
+                )
+            }
 
 
         }
@@ -272,7 +293,10 @@ fun SceneItem(
 }
 
 @Composable
-fun DevicesSection(devices: List<Device>) {
+fun DevicesSection(
+    devices: List<Device>,
+    onDeviceClick: (deviceId: Long) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -283,7 +307,7 @@ fun DevicesSection(devices: List<Device>) {
             .fillMaxWidth()
     ) {
         items(devices.size) { device ->
-            DeviceItem(device = devices[device])
+            DeviceItem(device = devices[device], onClick = onDeviceClick)
         }
     }
 
@@ -291,16 +315,18 @@ fun DevicesSection(devices: List<Device>) {
 
 @Composable
 fun DeviceItem(
-    device: Device
+    device: Device,
+    onClick: (deviceId: Long) -> Unit
 ) {
 
-    val state = remember {
-        mutableStateOf(device.status)
-    }
+//    val state = remember {
+//        mutableStateOf(device.status)
+//    }
+
 
     val color =
-        if (state.value) CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer) else CardDefaults.cardColors()
-    val stateText = if (state.value) "On" else "Off"
+        if (device.status) CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer) else CardDefaults.cardColors()
+    val stateText = if (device.status) "On" else "Off"
 
 
 
@@ -309,7 +335,8 @@ fun DeviceItem(
             .height(110.dp)
             .defaultMinSize(160.dp)
             .clickable {
-                state.value = !state.value
+                //device.status = !device.status
+                onClick(device.deviceId)
             },
         colors = color
     ) {
@@ -372,8 +399,8 @@ fun DeviceItem(
                     )
 
                     Switch(
-                        checked = state.value,
-                        onCheckedChange = { state.value = it },
+                        checked = device.status,
+                        onCheckedChange = { device.status = it },
                         modifier = Modifier
                             .scale(0.6f)
                             .offset(x = 18.dp, y = 24.dp)
@@ -388,7 +415,9 @@ fun DeviceItem(
 
 @Composable
 fun RoomsSection(
-    rooms: List<Room>
+    rooms: List<Room>,
+    devices: List<Device>,
+    onDeviceClick: (deviceId: Long) -> Unit
 ) {
 
     var selectedRoom = remember {
@@ -410,18 +439,9 @@ fun RoomsSection(
         }
     }
 
-    val tempDeviceList =
-        listOf(
-            Device(1, "Lampki", 1, false, 14, 1),
-            Device(2, "Lampki2", 2, false, 16, 1),
-            Device(1, "Lampki", 1, false, 14, 1),
-            Device(2, "Lampki2", 2, false, 16, 1),
-            Device(1, "Lampki", 1, false, 14, 2),
-            Device(2, "Lampki2", 2, false, 16, 2)
-        )
 
-    val specificDeviceList = tempDeviceList.filter { device -> device.roomId == selectedRoom.value }
-    DevicesSection(devices = specificDeviceList)
+    val specificDeviceList = devices.filter { device -> device.roomId == selectedRoom.value }
+    DevicesSection(devices = specificDeviceList, onDeviceClick)
 
 }
 
@@ -461,7 +481,26 @@ fun RowScope.Room(
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
-    HomeScreen(navController = rememberNavController())
+
+    val tempDeviceList =
+        listOf(
+            Device("device", 1, "Lampki", 1, false, 14, 1),
+            Device("device", 2, "Lampki2", 2, false, 16, 1),
+            Device("device", 1, "Lampki", 1, false, 14, 1),
+            Device("device", 2, "Lampki2", 2, false, 16, 1),
+            Device("device", 1, "Lampki", 1, false, 14, 2),
+            Device("device", 2, "Lampki2", 2, false, 16, 2)
+        )
+
+    val rooms = listOf(
+        Room("room", 1, "Living Room", 1),
+        Room("room", 2, "Kitchen", 1),
+        Room("room", 3, "Some Room", 1),
+        Room("room", 4, "Bed Room", 1)
+    )
+
+
+    HomeScreen(navController = rememberNavController(), tempDeviceList, rooms, {})
 }
 
 //@Preview

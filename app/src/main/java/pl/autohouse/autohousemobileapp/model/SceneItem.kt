@@ -1,4 +1,4 @@
-package pl.autohouse.autohousemobileapp.classes
+package pl.autohouse.autohousemobileapp.model
 
 data class SceneItem(
     val title: String,

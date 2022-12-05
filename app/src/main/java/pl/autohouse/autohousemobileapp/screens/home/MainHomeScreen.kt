@@ -13,6 +13,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import pl.autohouse.autohousemobileapp.MainViewModel
 import pl.autohouse.autohousemobileapp.navigation.BottomBarScreen
 import pl.autohouse.autohousemobileapp.navigation.graphs.HomeNavGraph
 
@@ -20,11 +21,14 @@ import pl.autohouse.autohousemobileapp.navigation.graphs.HomeNavGraph
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
+fun MainHomeScreen(
+    viewModel: MainViewModel,
+    navController: NavHostController = rememberNavController()
+) {
     Scaffold(
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController)
+        HomeNavGraph(navController = navController, viewModel)
     }
 }
 
