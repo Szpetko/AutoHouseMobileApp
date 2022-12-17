@@ -21,9 +21,9 @@ sealed class BottomBarScreen(
 
     )
 
-    object Scenes : BottomBarScreen(
-        route = "scenes",
-        title = "Scenes",
+    object Favorites : BottomBarScreen(
+        route = "favorites",
+        title = "Favorites",
         iconId = R.drawable.ic_baseline_star_24
     )
 

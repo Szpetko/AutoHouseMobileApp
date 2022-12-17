@@ -1,7 +1,6 @@
 package pl.autohouse.autohousemobileapp.screens.home
 
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,11 +9,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -27,60 +25,51 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import pl.autohouse.autohousemobileapp.R
+import com.plcoding.weatherapp.domain.weather.WeatherType
+import kotlinx.coroutines.delay
+import pl.autohouse.autohousemobileapp.api.CurrentWeatherDataDto
+import pl.autohouse.autohousemobileapp.api.WeatherDto
 import pl.autohouse.autohousemobileapp.model.Device
 import pl.autohouse.autohousemobileapp.model.Room
-import pl.autohouse.autohousemobileapp.model.SceneItem
-import retrofit2.Response
+import pl.autohouse.autohousemobileapp.model.fromId
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
     devices: List<Device>?,
     rooms: List<Room>?,
-    onDeviceClick: (deviceId: Long) -> Unit
+    onDeviceClick: (deviceId: Long) -> Unit,
+    cityName: String,
+    currentWeather: WeatherDto
 ) {
 
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 15.dp)
     ) {
         Column {
             TitleSection(title = "Home")
-            WeatherItem()
+            WeatherItem(cityName = cityName, currentWeather= currentWeather)
 
-            val sceneList = listOf(
-                SceneItem("Party Mode", false),
-                SceneItem("Film", true),
-                SceneItem("Cooking", false),
-                SceneItem("Party Mode", false),
-                SceneItem("Film", true),
-                SceneItem("Cooking", false)
+
+            val favouriteDeviceList = devices!!.filter { device -> device.isFavourite == true }
+            FavoriteSection(
+                favouriteDevices = favouriteDeviceList,
+                onFavouriteDeviceClick = onDeviceClick
             )
-            ScenesSection(sceneItems = sceneList)
 
 
-//            val rooms = listOf(
-//                Room("room", 1, "Living Room", 1),
-//                Room("room", 2, "Kitchen", 1),
-//                Room("room", 3, "Some Room", 1),
-//                Room("room", 4, "Bed Room", 1)
-//            )
+            if (rooms != null && rooms.isNotEmpty()) {
 
+                RoomsSection(rooms = rooms, devices = devices, onDeviceClick)
 
-            
-            if (rooms != null && devices != null) {
-
-
-                if (rooms.isNotEmpty()) {
-                    //Text(text = devices.get(0).status.toString())
-                    RoomsSection(rooms = rooms, devices = devices, onDeviceClick)
-                }
             } else {
                 Text(
                     text = "Failed to load data from the server",
@@ -109,7 +98,30 @@ fun TitleSection(
 }
 
 @Composable
-fun WeatherItem() {
+fun WeatherItem(
+    cityName: String,
+    currentWeather: WeatherDto
+) {
+
+    val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+    val time = remember {
+        mutableStateOf(LocalTime.now().format(timeFormat))
+    }
+
+    val dateFormat = DateTimeFormatter.ofPattern("dd-MM")
+    val date = LocalDate.now().format(dateFormat)
+    val dayInWeek = LocalDate.now().dayOfWeek.name.substring(0, 3)
+
+    val weatherType = WeatherType.fromWMO(currentWeather.currentWeatherData.weatherCode)
+
+
+    LaunchedEffect(key1 = true) {
+        while (true) {
+            delay(5000)
+            time.value = LocalTime.now().format(timeFormat)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth(),
@@ -117,11 +129,11 @@ fun WeatherItem() {
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth()
+                .widthIn(min = 300.dp, max = 500.dp)
         ) {
             Row(
                 Modifier
-                    .padding(start = 15.dp, top = 15.dp, end = 15.dp, bottom = 15.dp)
+                    .padding(15.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -131,12 +143,12 @@ fun WeatherItem() {
                     ) {
 
                         Icon(
-                            painter = painterResource(id = R.drawable.sunny_icon),
+                            painter = painterResource(id = weatherType.iconRes),
                             contentDescription = "Sunny",
                             Modifier.size(26.dp)
                         )
                         Text(
-                            text = "Sunny",
+                            text = weatherType.weatherDesc,
                             fontSize = MaterialTheme.typography.titleLarge.fontSize,
                             modifier = Modifier.padding(horizontal = 5.dp)
                         )
@@ -144,7 +156,7 @@ fun WeatherItem() {
                     }
 
                     Text(
-                        text = "30" + "°",
+                        text = currentWeather.currentWeatherData.temperature.toString() + "°",
                         fontSize = MaterialTheme.typography.displayMedium.fontSize,
                         fontWeight = FontWeight.Bold,
                         style = LocalTextStyle.current.merge(
@@ -158,8 +170,9 @@ fun WeatherItem() {
 
                 }
                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Top) {
+                    val format = DateTimeFormatter.ofPattern("HH:mm")
                     Text(
-                        text = "12:35",
+                        text = time.value,
                         fontSize = MaterialTheme.typography.headlineMedium.fontSize,
                         fontWeight = FontWeight.Bold,
                         style = LocalTextStyle.current.merge(
@@ -172,7 +185,7 @@ fun WeatherItem() {
 
                     )
                     Text(
-                        text = "FRI  10-11",
+                        text = "$dayInWeek $date",
                         fontSize = MaterialTheme.typography.titleMedium.fontSize,
                         fontWeight = FontWeight.Bold,
                         style = LocalTextStyle.current.merge(
@@ -185,12 +198,14 @@ fun WeatherItem() {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Cracow",
+                        text = cityName,
                         fontSize = MaterialTheme.typography.titleMedium.fontSize,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
+
+
         }
     }
 
@@ -199,10 +214,13 @@ fun WeatherItem() {
 
 
 @Composable
-fun ScenesSection(sceneItems: List<SceneItem>) {
+fun FavoriteSection(
+    favouriteDevices: List<Device>,
+    onFavouriteDeviceClick: (deviceId: Long) -> Unit
+) {
 
     Text(
-        text = "Scenes",
+        text = "Favorite",
         fontSize = MaterialTheme.typography.headlineSmall.fontSize,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 10.dp, top = 20.dp)
@@ -211,24 +229,22 @@ fun ScenesSection(sceneItems: List<SceneItem>) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(25.dp)
     ) {
-        items(sceneItems.size) { scene ->
-            SceneItem(sceneItem = sceneItems[scene])
+        items(favouriteDevices.size) { device ->
+            FavouriteItem(favouriteDevice = favouriteDevices[device], onFavouriteDeviceClick)
         }
     }
 
 }
 
 @Composable
-fun SceneItem(
-    sceneItem: SceneItem,
+fun FavouriteItem(
+    favouriteDevice: Device,
+    onClick: (deviceId: Long) -> Unit
 ) {
-    val state = remember {
-        mutableStateOf(sceneItem.status)
-    }
 
     val color =
-        if (state.value) CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer) else CardDefaults.cardColors()
-    val stateText = if (state.value) "On" else "Off"
+        if (favouriteDevice.status) CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer) else CardDefaults.cardColors()
+    val stateText = if (favouriteDevice.status) "On" else "Off"
 
 
     Card(
@@ -236,7 +252,7 @@ fun SceneItem(
             .height(110.dp)
             .width(120.dp)
             .clickable {
-                state.value = !state.value
+                onClick(favouriteDevice.deviceId)
             },
         colors = color
     ) {
@@ -246,7 +262,7 @@ fun SceneItem(
                 .fillMaxSize()
         ) {
             Text(
-                text = sceneItem.title,
+                text = favouriteDevice.name,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -281,8 +297,8 @@ fun SceneItem(
                 )
 
                 Switch(
-                    checked = state.value,
-                    onCheckedChange = { state.value = it },
+                    checked = favouriteDevice.status,
+                    onCheckedChange = { favouriteDevice.status },
                     modifier = Modifier
                         .scale(0.6f)
                         .offset(x = 18.dp, y = 24.dp)
@@ -319,10 +335,6 @@ fun DeviceItem(
     onClick: (deviceId: Long) -> Unit
 ) {
 
-//    val state = remember {
-//        mutableStateOf(device.status)
-//    }
-
 
     val color =
         if (device.status) CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer) else CardDefaults.cardColors()
@@ -349,7 +361,7 @@ fun DeviceItem(
                 text = device.name,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Bold,
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = LocalTextStyle.current.merge(
                     TextStyle(
@@ -368,7 +380,7 @@ fun DeviceItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.sunny_icon),
+                    painter = painterResource(id = fromId(device.iconId)),
                     contentDescription = "Sunny",
                     Modifier
                         .size(height = 60.dp, width = 60.dp)
@@ -484,12 +496,12 @@ fun HomeScreenPreview() {
 
     val tempDeviceList =
         listOf(
-            Device("device", 1, "Lampki", 1, false, 14, 1),
-            Device("device", 2, "Lampki2", 2, false, 16, 1),
-            Device("device", 1, "Lampki", 1, false, 14, 1),
-            Device("device", 2, "Lampki2", 2, false, 16, 1),
-            Device("device", 1, "Lampki", 1, false, 14, 2),
-            Device("device", 2, "Lampki2", 2, false, 16, 2)
+            Device("device", 1, "Lampki", 1, false, 14, 1, false),
+            Device("device", 2, "Lampki2", 2, false, 16, 1, true),
+            Device("device", 1, "Lampki", 1, true, 14, 1, true),
+            Device("device", 2, "Lampki2", 2, false, 16, 1, true),
+            Device("device", 1, "Lampki", 1, false, 14, 2, false),
+            Device("device", 2, "Lampki2", 2, false, 16, 2, false)
         )
 
     val rooms = listOf(
@@ -500,26 +512,7 @@ fun HomeScreenPreview() {
     )
 
 
-    HomeScreen(navController = rememberNavController(), tempDeviceList, rooms, {})
+    HomeScreen(tempDeviceList, rooms, {}, "", WeatherDto(
+        CurrentWeatherDataDto(0.00,0))
+    )
 }
-
-//@Preview
-//@Composable
-//fun RoomPreview() {
-//    Room("Living Room", "Living Room")
-//}
-
-//@Preview
-//@Composable
-//fun WeatherItemPreview() {
-//    WeatherItem()
-//}
-//
-//
-//
-//@Preview
-//@Composable
-//fun SceneItemPreview() {
-//    val newScene = SceneItem("Party Mode", false)
-//    SceneItem(sceneItem = newScene)
-//}
