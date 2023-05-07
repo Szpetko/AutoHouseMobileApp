@@ -5,8 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import pl.autohouse.autohousemobileapp.navigation.Graph
-import pl.autohouse.autohousemobileapp.screens.start.SetIPAddressScreen
-import pl.autohouse.autohousemobileapp.screens.start.StartScreen
+import pl.autohouse.autohousemobileapp.ui.theme.start.SetIPAddressScreen
+import pl.autohouse.autohousemobileapp.ui.theme.start.StartScreen
 import pl.autohouse.autohousemobileapp.navigation.Screen
 
 

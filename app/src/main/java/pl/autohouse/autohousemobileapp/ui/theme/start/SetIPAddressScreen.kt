@@ -1,4 +1,4 @@
-package pl.autohouse.autohousemobileapp.screens.start
+package pl.autohouse.autohousemobileapp.ui.theme.start
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,10 +12,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import pl.autohouse.autohousemobileapp.navigation.Screen
+import pl.autohouse.autohousemobileapp.navigation.Graph
 
 @Composable
-fun StartScreen(
+fun SetIPAddressScreen(
     navController: NavController
 ) {
     Box(
@@ -24,9 +24,12 @@ fun StartScreen(
     ) {
         Text(
             modifier = Modifier.clickable {
-                navController.navigate(route = Screen.SetIpAddress.route)
+                navController.popBackStack()
+                navController.navigate(route = Graph.HOME){
+                    popUpTo(Graph.HOME)
+                }
             },
-            text = "Start",
+            text = "Set IP Address",
             fontSize = MaterialTheme.typography.headlineMedium.fontSize,
             fontWeight = FontWeight.Bold
         )
@@ -35,6 +38,6 @@ fun StartScreen(
 
 @Composable
 @Preview(showBackground = true)
-fun StartScreenPreview() {
-    StartScreen(navController = rememberNavController())
+fun SetIPAddressScreenPreview() {
+    SetIPAddressScreen(navController = rememberNavController())
 }
