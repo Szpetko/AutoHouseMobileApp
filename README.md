@@ -29,23 +29,23 @@ A smart home app for Android. It uses the Rest API to control home appliances. A
 
 ##  UI
 <p>
-<img align = "left" src="./assets/github/Home1.png" alt="Home Screen" width="200" />
+<img align = "left" src="./assets/github/Home1.png" alt="Home Screen" width="400" />
 
-<img align = "left" src="./assets/github/Home2.png" alt="Home Screen 2" width="200"
+<img align = "left" src="./assets/github/Home2.png" alt="Home Screen 2" width="400"
 />
 </p>
 
 <p>
-<img align = "left" src="./assets/github/Rooms1.png" alt="Rooms Screen" width="200" />
+<img align = "left" src="./assets/github/Rooms1.png" alt="Rooms Screen" width="400" />
 
-<img align = "left" src="./assets/github/Rooms2.png" alt="Devices Inside Room Screen" width="200"
+<img align = "left" src="./assets/github/Rooms2.png" alt="Devices Inside Room Screen" width="400"
 />
 </p>
 
 <p>
-<img align = "left" src="./assets/github/Favorites.png" alt="Favorites Screen" width="200" />
+<img align = "left" src="./assets/github/Favorites.png" alt="Favorites Screen" width="400" />
 
-<img align = "left" src="./assets/github/Settings.png" alt="Settings Screen" width="200"
+<img align = "left" src="./assets/github/Settings.png" alt="Settings Screen" width="400"
 />
 </p>
 
