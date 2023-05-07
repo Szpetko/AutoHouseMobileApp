@@ -28,7 +28,9 @@ A smart home app for Android. It uses the Rest API to control home appliances. A
 <br>
 
 ##  UI
+
 <br>
+
 <p>
 <img align = "left" src="./assets/github/Home1.png" alt="Home Screen" width="300" />
 
