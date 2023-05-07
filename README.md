@@ -24,33 +24,16 @@ A smart home app for Android. It uses the Rest API to control home appliances. A
 <img align = "left" alt="Android Studio" width="50" style="margin-right:10px;" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/androidstudio/androidstudio-original.svg" />
 
 </p>
-<br>
-<br>
+<br/>
+<br/>
+<br/>
 
 ##  UI
 
-
-<div style= "margin-top: 20px">
-<img style="margin-right:10px;" align = "left" src="./assets/github/Home1.png" alt="Home Screen" width="300" />
-
-<img style="margin-right:10px;" align = "left" src="./assets/github/Home2.png" alt="Home Screen 2" width="300"
-/>
-</div>
-
-
-<div style= "margin-top: 20px">
-<img style="margin-right:10px;" align = "left" src="./assets/github/Rooms1.png" alt="Rooms Screen" width="300" />
-
-<img style="margin-right:10px;" align = "left" src="./assets/github/Rooms2.png" alt="Devices Inside Room Screen" width="300"
-/>
-</div>
-
-
-<div style= "margin-top: 20px">
-<img style="margin-right:10px;" align = "left" src="./assets/github/Favorites.png" alt="Favorites Screen" width="300" />
-
-<img style="margin-right:10px;" align = "left" src="./assets/github/Settings.png" alt="Settings Screen" width="300"
-/>
-</div>
-
+<img style="margin-right:10px;" align = "left" src="./assets/github/Home1.png" alt="Home Screen" width="35%"></img>
+<img align = "left" src="./assets/github/Home2.png" alt="Home Screen 2" width="35%"></img>
+<img style="margin-right:10px;" align = "left" src="./assets/github/Rooms1.png" alt="Rooms Screen" width="35%"></img>
+<img align = "left" src="./assets/github/Rooms2.png" alt="Devices Inside Room Screen" width="35%"></img> 
+<img style="margin-right:10px;" align = "left" src="./assets/github/Favorites.png" alt="Favorites Screen" width="35%"></img>
+<img align = "left" src="./assets/github/Settings.png" alt="Settings Screen" width="35%"></img> 
 
